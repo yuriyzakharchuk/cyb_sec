@@ -158,7 +158,7 @@ text_analyzer::compute_char_frequency() {
     this->_char_frequency = new std::vector<std::pair<wchar_t, long double>>();
     unsigned long long char_count { 0 }; 
 
-    for(const auto& x : *this->_text) {
+    for(const auto x : *this->_text) {
         if(ignore_char(x) && x != L' ') {
             continue;
         }
