@@ -13,7 +13,7 @@ public:
     ~textfile_provider();
 
     std::wstring *
-    get();
+    get() const;
 
     textfile_provider(const textfile_provider&) = delete;
 

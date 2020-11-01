@@ -28,8 +28,16 @@ public:
     operator=(const text_analyzer&) = delete;
 
     void
-    print_frequency(std::basic_ostream<wchar_t>&,
-                    unsigned int columns) const;
+    print_char_frequency(std::basic_ostream<wchar_t>&,
+                         comparator sb, unsigned int columns) const;
+
+    void
+    print_bigram_frequency(std::basic_ostream<wchar_t>&,
+                           comparator sb, unsigned int columns) const;
+
+    void
+    print_trigram_frequency(std::basic_ostream<wchar_t>&,
+                            comparator sb, unsigned int columns) const;
 
     void
     print_char_diagram(std::basic_ostream<wchar_t>&,
@@ -60,7 +68,7 @@ private:
     void
     compute_trigram_frequency();
 
-    bool
+    inline bool
     ignore_char(wchar_t);
 };
 

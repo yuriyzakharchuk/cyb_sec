@@ -2,7 +2,6 @@
 
 textfile_provider::textfile_provider(const char *filepath) 
     : str_(textfile_provider::read_file(filepath)) {
-
 }
 
 textfile_provider::~textfile_provider() {
@@ -12,12 +11,14 @@ textfile_provider::~textfile_provider() {
     }        
 }
 
-std::wstring *textfile_provider::get() {
+std::wstring *
+textfile_provider::get() const {
     return str_;
 }
 
 
-std::wstring *textfile_provider::read_file(const char *filepath) {
+std::wstring *
+textfile_provider::read_file(const char *filepath) {
     std::wifstream t(filepath);
     return new std::wstring (std::istreambuf_iterator<wchar_t>(t), std::istreambuf_iterator<wchar_t>());
 }
