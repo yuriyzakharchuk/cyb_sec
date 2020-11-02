@@ -248,6 +248,6 @@ text_analyzer::compute_trigram_frequency() {
 
 inline bool
 text_analyzer::ignore_char(wchar_t ch) {
-    return !std::isalpha(ch);
+    return !std::isalpha(ch, std::locale("uk_UA.utf8"));
 }
 
