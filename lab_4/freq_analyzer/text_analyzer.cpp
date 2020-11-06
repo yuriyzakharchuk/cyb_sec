@@ -14,18 +14,14 @@ text_analyzer::text_analyzer(std::wstring *text)
 
 
 text_analyzer::~text_analyzer() {
-    if(_trigram_frequency != nullptr) {
-        delete _trigram_frequency;
-        _trigram_frequency = nullptr;
-    }
-    if(_bigram_frequency != nullptr) {
-        delete _bigram_frequency;
-        _bigram_frequency = nullptr;
-    }
-    if(_char_frequency != nullptr) {
-        delete _char_frequency;
-        _char_frequency = nullptr;
-    }
+    delete _trigram_frequency;
+    _trigram_frequency = nullptr;
+
+    delete _bigram_frequency;
+    _bigram_frequency = nullptr;
+    
+    delete _char_frequency;
+    _char_frequency = nullptr;
 }
 
 
