@@ -1,5 +1,6 @@
 #include "text_analyzer.h"
 #include <algorithm>
+#include <functional>
 
 
 text_analyzer::text_analyzer(std::wstring *text)
@@ -33,7 +34,7 @@ text_analyzer::print_char_frequency(std::basic_ostream<wchar_t>& os,
         return;
     }
     std::sort(std::begin(*_char_frequency), std::end(*_char_frequency), sb);
-    os << "Frequency: \n";
+    os << '\n';
     int flag { 0 };
     for (const auto &pair : *_char_frequency) {
         os << pair.first << ": " << pair.second << (((++flag % columns) != 0)? '\t' : '\n');
@@ -50,7 +51,7 @@ text_analyzer::print_bigram_frequency(std::basic_ostream<wchar_t>& os,
         return;
     }
     std::sort(std::begin(*_bigram_frequency), std::end(*_bigram_frequency), sb);
-    os << "Frequency: \n";
+    os << '\n';
     int flag { 0 };
     for (const auto &pair : *_bigram_frequency) {
         os << pair.first << ": " << pair.second << (((++flag % columns) != 0)? '\t' : '\n');
@@ -67,7 +68,7 @@ text_analyzer::print_trigram_frequency(std::basic_ostream<wchar_t>& os,
         return;
     }
     std::sort(std::begin(*_trigram_frequency), std::end(*_trigram_frequency), sb);
-    os << "Frequency: \n";
+    os << '\n';
     int flag { 0 };
     for (const auto &pair : *_trigram_frequency) {
         os << pair.first << ": " << pair.second << (((++flag % columns) != 0)? '\t' : '\n');
@@ -132,8 +133,8 @@ text_analyzer::print_trigram_diagram(std::basic_ostream<wchar_t>& os,
         return;
     }
     std::sort(std::begin(*_trigram_frequency), std::end(*_trigram_frequency), sb);
-    auto max_value { std::max_element(_trigram_frequency->begin(), _trigram_frequency->end(),
-        comparator(how_to::ascending))
+    auto max_value { *std::max_element(_trigram_frequency->begin(), 
+        _trigram_frequency->end(), comparator(how_to::ascending))
     };
     unsigned int iteration_count = 0;
     for (const auto &pair : *_trigram_frequency) {
@@ -141,10 +142,54 @@ text_analyzer::print_trigram_diagram(std::basic_ostream<wchar_t>& os,
             break;
         }
         os << ' ' << pair.first << ' ' << pair.second << ' ';
-        for(int i = 0; i < row_len * (pair.second / max_value->second); ++i) {
+        for(int i = 0; i < row_len * (pair.second / max_value.second); ++i) {
             os << L'▇';
         }
         os << std::endl;
+    }
+}
+
+
+void
+text_analyzer::print_bigram_matrix(std::basic_ostream<wchar_t>& os) const {
+    std::sort(std::begin(*_char_frequency), std::end(*_char_frequency), comparator(how_to::alphabeta));
+    constexpr auto color_levels { 4 };
+    const auto step { 
+        std::get<1>(*std::max_element(_bigram_frequency->begin(),
+            _bigram_frequency->end(), comparator(how_to::ascending))) / color_levels
+    };
+    
+    os << ' ';
+    for(auto i : *_char_frequency) {
+        os << ' ' << std::get<0>(i);
+    }
+    os << '\n';
+    
+    for(auto i : *_char_frequency) {
+        os << std::get<0>(i);
+        for(auto j : *_char_frequency) {
+            auto current_bigram { std::find_if(_bigram_frequency->begin(),
+                _bigram_frequency->end(), [&i, &j](auto &a) { 
+                    return std::get<0>(a) == std::wstring(1, std::get<0>(i)) + std::get<0>(j);
+                })
+            };
+            if(current_bigram == _bigram_frequency->end()) {
+                os << L"  ";
+            }
+            else if(current_bigram->second < step) {
+                os << L"░░";
+            }
+            else if(current_bigram->second < 2 * step) {
+                os << L"▒▒";
+            }
+            else if(current_bigram->second < 2 * step + step) {
+                os << L"▓▓";
+            }
+            else {
+                os << L"██";
+            }
+        }
+        os << '\n';
     }
 }
 

@@ -38,6 +38,10 @@ main(int argc, char **argv) {
     ta.print_bigram_diagram(std::wcout, comparator(how_to::descending), 80, 30);
     std::wcout << std::endl;
 
+    std::wcout << L"Матриця частот появи біграм (імовірність позначена кольором)" << std::endl;
+    ta.print_bigram_matrix(std::wcout);
+    std::wcout << std::endl;
+
     std::wcout << L"Таблиця з відносними частотами триграм, відсортована за спаданням частоти" << std::endl;
     ta.print_trigram_frequency(std::wcout, comparator(how_to::descending), 10);
     std::wcout << std::endl;

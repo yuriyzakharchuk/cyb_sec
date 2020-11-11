@@ -40,6 +40,9 @@ public:
                             comparator sb, unsigned int columns) const;
 
     void
+    print_bigram_matrix(std::basic_ostream<wchar_t>& os) const;
+
+    void
     print_char_diagram(std::basic_ostream<wchar_t>&,
                        comparator, unsigned int) const;
 
