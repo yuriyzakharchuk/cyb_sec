@@ -1,6 +1,18 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <array>
+
+constexpr long m = 33;
+constexpr std::array<wchar_t, m> alphabeta = {
+    L'а', L'б', L'в', L'г', L'ґ',
+    L'д', L'е', L'є', L'ж', L'з',
+    L'и', L'і', L'ї', L'й', L'к',
+    L'л', L'м', L'н', L'о', L'п',
+    L'р', L'с', L'т', L'у', L'ф',
+    L'х', L'ц', L'ч', L'ш', L'щ',
+    L'ь', L'ю', L'я'
+};
 
 
 long
@@ -16,32 +28,46 @@ gcd(long a, long b) {
     return a;
 }
 
-void
-encode(std::basic_ostream<wchar_t>& out_stream, std::wstring* from) {
-    int min_index { *std::min_element(from->begin(), from->end()) };
-    int m { 26 };
-    int a_key { 1 };
-    int b_key { m - 1 };
 
-    for(int i = m - 2; i > 1; --i) {
-        if(gcd(m, i) == 1) {
-            a_key = i;
-            break;
+void
+encode(std::basic_ostream<wchar_t>& out_stream, std::wstring* from, size_t a_key, size_t b_key) {
+    for(auto ch : *from) {
+        auto it { std::find(alphabeta.begin(), alphabeta.end(), ch) };
+        if(it != alphabeta.end()) {
+            out_stream << static_cast<wchar_t>(alphabeta.at((a_key * (it - alphabeta.begin()) + b_key) % m));
+        }
+        else {
+            out_stream << ch;
         }
     }
-    out_stream << "A = " << a_key << ", B = " << b_key << std::endl;
-    //E(x) = (ax - b) mod m
-    for(auto ch : *from) {
-        out_stream << static_cast<wchar_t>(((a_key * (ch - min_index) + b_key) % m) + min_index);
-    }
-    out_stream << std::endl;
 }
- 
 
 
 void
-decode(std::basic_ostream<wchar_t>& out_stream, std::wstring* from) {
-    
+decode(std::basic_ostream<wchar_t>& out_stream, std::wstring* from, size_t a_key, size_t b_key) {
+    long a_inverted { 1 };
+    while((a_inverted * a_key) % m != 1){
+        ++a_inverted;
+    }    
+    auto tmp = 0;
+    if(!std::all_of(from->begin(), from->end(), [b_key](wchar_t x) {
+            if(std::find(alphabeta.begin(), alphabeta.end(), x) != alphabeta.end()) {
+                return static_cast<long unsigned>(x - alphabeta[0]) >= b_key;
+            }
+            return true;     
+        })) {
+        tmp = m;
+    }
+
+    for(auto ch : *from) {
+        auto it { std::find(alphabeta.begin(), alphabeta.end(), ch) };
+        if(it != alphabeta.end()) {
+            out_stream << static_cast<wchar_t>(alphabeta.at((a_inverted * ((it - alphabeta.begin()) + tmp - b_key)) % m));
+        }
+        else {
+            out_stream << ch;
+        }
+    }    
 }
 
 
@@ -62,11 +88,21 @@ main(int argc, char *argv[]) {
                    << std::endl;
         std::exit(EXIT_FAILURE);
     }
+
+    long a_key { 1 };
+    long b_key { m - 1 };
+
+    for(long i = 2; i < m; ++i) {
+        if(gcd(m, i) == 1) {
+            a_key = i;
+            break;
+        }
+    }
     if(argv[1][0] == 'e') {
-        encode(std::wcout, read_file(argv[2]));
+        encode(std::wcout, read_file(argv[2]), a_key, b_key);
     }
     else if(argv[1][0] == 'd') {
-        decode(std::wcout, read_file(argv[2]));
+        decode(std::wcout, read_file(argv[2]), a_key, b_key);
     }
     else {
         std::wcerr << "Error: Undefined flad." << std::endl;
