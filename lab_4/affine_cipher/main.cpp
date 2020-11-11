@@ -15,20 +15,6 @@ constexpr std::array<wchar_t, m> alphabeta = {
 };
 
 
-long
-gcd(long a, long b) {
-    while (a != b) {
-        if (a > b) {
-            long tmp = a;
-            a = b;
-            b = tmp;
-        }
-        b = b - a;
-    }
-    return a;
-}
-
-
 void
 encode(std::basic_ostream<wchar_t>& out_stream, std::wstring* from, size_t a_key, size_t b_key) {
     for(auto ch : *from) {
@@ -82,22 +68,16 @@ int
 main(int argc, char *argv[]) {
     std::locale::global(std::locale("uk_UA.utf8"));
     std::wcout.setf(std::ios::fixed);
-    if(argc != 3) {
-        std::wcerr << L"usage: program d text_to_decode\n"
-                   << "        program e text_to_encode"
+    if(argc != 5) {
+        std::wcerr << L"usage: program d text_to_decode a b\n"
+                   << "        program e text_to_encode a b"
                    << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
-    long a_key { 1 };
-    long b_key { m - 1 };
+    long a_key { std::atol(argv[3]) };
+    long b_key { std::atol(argv[4]) };
 
-    for(long i = 2; i < m; ++i) {
-        if(gcd(m, i) == 1) {
-            a_key = i;
-            break;
-        }
-    }
     if(argv[1][0] == 'e') {
         encode(std::wcout, read_file(argv[2]), a_key, b_key);
     }
