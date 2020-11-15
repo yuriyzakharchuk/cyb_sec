@@ -85,7 +85,7 @@ base64_decode(const std::string &ciphertext) {
 
     for (auto i = ciphertext.cbegin(); i != last; ++i) {
         const int c = *i;
-        if (::std::isspace(c) || c == '=') {
+        if (std::isspace(c) || c == '=') {
             continue;
         }
         if ((c > 127) || (c < 0) || (reverse_table[c] > 63)) {
@@ -163,7 +163,7 @@ aes_128_ctr_encrypt(const std::string &plaintext, const std::string &key, const 
 
 
 std::string
-aes_128_ctr_decrypt(const std::string &ciphertex, const std::string &key, const std::string &iv) {
+aes_128_ctr_decrypt(const std::string &ciphertext, const std::string &key, const std::string &iv) {
     EVP_CIPHER_CTX *cipher { nullptr };
     cipher = EVP_CIPHER_CTX_new();
     if(!cipher) {
@@ -179,10 +179,12 @@ aes_128_ctr_decrypt(const std::string &ciphertex, const std::string &key, const 
     }
 
     int current_len { 0 };
-    auto ciphertext_ptr { reinterpret_cast<const unsigned char *>(ciphertex.c_str()) };
-    auto plaintext { new unsigned char[ciphertex.length() + 1]};
+    auto ciphertext_ptr { reinterpret_cast<const unsigned char *>(ciphertext.c_str()) };
+    auto plaintext      {
+            static_cast<unsigned char *>(std::calloc(ciphertext.length() + 1, sizeof(unsigned  char)))
+    };
 
-    if(EVP_DecryptUpdate(cipher, plaintext, &current_len, ciphertext_ptr, ciphertex.length()) != 1) {
+    if(EVP_DecryptUpdate(cipher, plaintext, &current_len, ciphertext_ptr, ciphertext.length()) != 1) {
         std::cerr << "Error: EVP_DecryptUpdate()" << std::endl;
         std::exit(-1);
     }
@@ -193,7 +195,9 @@ aes_128_ctr_decrypt(const std::string &ciphertex, const std::string &key, const 
     }
 
     EVP_CIPHER_CTX_free(cipher);
-    return std::string(reinterpret_cast<const char *>(plaintext));
+    std::string ret_val { reinterpret_cast<const char *>(plaintext) };
+    std::free(plaintext);
+    return ret_val;
 }
 
 
