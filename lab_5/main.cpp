@@ -12,7 +12,7 @@ extern "C" {
 
 constexpr size_t KEY_SIZEOF { 16 };
 constexpr size_t IV_SIZEOF { 16 };
-constexpr size_t UPDATE_BUFFER { 48 };
+constexpr size_t UPDATE_BUFFER { 4 };
 
 static constexpr char b64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -118,7 +118,7 @@ aes_128_ctr_encrypt(const std::string &plaintext, const std::string &key, const 
         std::exit(-1);
     }
 
-    int current_len      { 0 };
+    auto current_len     { 0 };
     auto cipher_shift    { 0 };
     auto plaintext_shift { 0 };
     auto current_bufsize { UPDATE_BUFFER };
@@ -178,7 +178,7 @@ aes_128_ctr_decrypt(const std::string &ciphertext, const std::string &key, const
         std::exit(-1);
     }
 
-    int current_len { 0 };
+    auto current_len    { 0 };
     auto ciphertext_ptr { reinterpret_cast<const unsigned char *>(ciphertext.c_str()) };
     auto plaintext      {
             static_cast<unsigned char *>(std::calloc(ciphertext.length() + 1, sizeof(unsigned  char)))
@@ -214,11 +214,15 @@ main(int argc, char *argv[]) {
     auto key { std::string(argv[3]) };
     auto iv  { std::string(argv[4]) };
 
-    if(key.length() != KEY_SIZEOF || iv.length() != KEY_SIZEOF) {
+    if(key.length() != KEY_SIZEOF || iv.length() != IV_SIZEOF) {
         std::cerr << "Error: incorrect key or iv." << std::endl;
         std::exit(-1);
     }
     file_reader fr { argv[2] };
+    if(fr.get().empty()) {
+        std::cerr << "Error: file empty or not found." << std::endl;
+        std::exit(-1);
+    }
     if(argv[1][0] == 'e') {
         auto encrypted {
             aes_128_ctr_encrypt(fr.get(), key, iv)
