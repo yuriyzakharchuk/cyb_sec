@@ -52,7 +52,7 @@ private:
 
 
 std::string
-base64_encode(const std::string plaintext) {
+base64_encode(const std::string &plaintext) {
     const std::size_t binlen = plaintext.size();
     std::string ret_val((((binlen + 2) / 3) * 4), '=');
     std::size_t out_pos       { 0 };
@@ -149,14 +149,16 @@ aes_128_ctr_encrypt(const std::string &plaintext, const std::string &key, const 
         std::cerr << "Error: EVP_EncryptUpdate()" << std::endl;
         std::exit(-1);
     }
+    cipher_shift += current_len;
 
-    if(EVP_EncryptFinal_ex(cipher, ciphertext, &current_len) != 1) {
+    if(EVP_EncryptFinal_ex(cipher, ciphertext + cipher_shift, &current_len) != 1) {
         std::cerr << "Error: EVP_EncryptFinal_ex()" << std::endl;
         std::exit(-1);
     }
+    cipher_shift += current_len;
 
     EVP_CIPHER_CTX_free(cipher);
-    std::string ret_val { reinterpret_cast<const char *>(ciphertext) };
+    std::string ret_val(reinterpret_cast<const char*>(ciphertext), cipher_shift);
     std::free(ciphertext);
     return ret_val;
 }
@@ -241,3 +243,4 @@ main(int argc, char *argv[]) {
     }
     return 0;
 }
+
