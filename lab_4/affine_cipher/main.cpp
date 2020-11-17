@@ -46,6 +46,9 @@ decode(std::basic_ostream<wchar_t>& out_stream, std::wstring* from, size_t a_key
     }
 
     for(auto ch : *from) {
+        if(std::iswupper(ch)) {
+            ch = std::towlower(ch);
+        }
         auto it { std::find(alphabeta.begin(), alphabeta.end(), ch) };
         if(it != alphabeta.end()) {
             out_stream << static_cast<wchar_t>(alphabeta.at((a_inverted * ((it - alphabeta.begin()) + tmp - b_key)) % m));

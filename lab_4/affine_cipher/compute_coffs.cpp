@@ -14,7 +14,7 @@ gcd(long a, long b)
 std::vector<long>
 get_all_coprime_ints(long m) {
     std::vector<long> a;
-    for(int i = 2; i < m; ++i) {
+    for(int i = 1; i < m; ++i) {
         if(gcd(i, m) == 1) {
             a.push_back(i);
         }
